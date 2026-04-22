@@ -1,5 +1,5 @@
 # src/capture/geometry.py
-"""Pure numpy geometry — depth maps to world-frame point clouds, PLY I/O."""
+"""Pure numpy geometry — depth maps to world-frame point clouds."""
 from __future__ import annotations
 from pathlib import Path
 import numpy as np
@@ -18,7 +18,11 @@ def depth_to_pointcloud(
     Returns:    (N, 3) float32 world-frame points.
     """
     H, W = depth.shape
-    assert intrinsics["height"] == H and intrinsics["width"] == W
+    if intrinsics["height"] != H or intrinsics["width"] != W:
+        raise ValueError(
+            f"depth shape {depth.shape} does not match intrinsics "
+            f"({intrinsics['height']}x{intrinsics['width']})"
+        )
 
     valid = np.isfinite(depth) & (depth > 0.0)
     vs, us = np.nonzero(valid)
