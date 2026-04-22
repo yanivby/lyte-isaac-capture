@@ -40,6 +40,8 @@ def depth_to_pointcloud(
 
 def write_ply_ascii(path: Path, points: np.ndarray) -> None:
     """Write (N, 3) float points as an ASCII PLY file."""
+    if points.ndim != 2 or points.shape[1] != 3:
+        raise ValueError(f"points must be (N, 3), got {points.shape}")
     path = Path(path)
     n = points.shape[0]
     header = (
@@ -51,5 +53,5 @@ def write_ply_ascii(path: Path, points: np.ndarray) -> None:
         "property float z\n"
         "end_header\n"
     )
-    lines = [f"{p[0]:g} {p[1]:g} {p[2]:g}" for p in points]
-    path.write_text(header + "\n".join(lines) + ("\n" if n else ""))
+    lines = [f"{p[0]:.8g} {p[1]:.8g} {p[2]:.8g}" for p in points]
+    path.write_text(header + "\n".join(lines) + ("\n" if n else ""), encoding="ascii")

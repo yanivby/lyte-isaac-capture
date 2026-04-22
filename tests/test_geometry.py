@@ -64,5 +64,7 @@ def test_write_ply_ascii_roundtrip(tmp_path):
     text = out.read_text()
     assert text.startswith("ply\nformat ascii 1.0\n")
     assert "element vertex 2\n" in text
-    assert "0 0 0" in text
+    lines_data = [l for l in text.splitlines() if l and not l.startswith(('ply', 'format', 'element', 'property', 'end_header'))]
+    assert lines_data[0] == "0 0 0"
+    assert lines_data[1] == "1.5 -2 3.25"
     assert "1.5 -2 3.25" in text
