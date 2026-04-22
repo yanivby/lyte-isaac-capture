@@ -25,9 +25,14 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
     add_reference_to_stage(usd_path=anymal_usd, prim_path="/World/anymal")
 
     world.reset()
+    Path("/tmp/debug.txt").write_text("before steps\n")
     for _ in range(30):
         world.step(render=False)
 
-    print(f"[capture_isaac] ANYmal spawned at {anymal_usd}. Mount offset placeholder: {mount_offset}")
+    msg = f"[capture_isaac] ANYmal spawned at {anymal_usd}. Mount offset placeholder: {mount_offset}\n"
+    Path("/tmp/debug.txt").write_text(msg)
+    import sys
+    print(msg, flush=True)
+    sys.stdout.flush()
     sim.close()
     return 0
