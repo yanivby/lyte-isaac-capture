@@ -76,8 +76,8 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
         frame = camera.get_current_frame()
         if i == 0:
             Path("/tmp/frame_keys.txt").write_text(str(list(frame.keys())) + "\n")
-        rgba = frame.get("rgba")
-        depth = frame["distance_to_image_plane"]
+        rgb = frame.get("rgb")
+        depth = frame.get("distance_to_image_plane")
         pos, quat_wxyz = camera.get_world_pose()
 
         w, x, y, z = quat_wxyz
@@ -96,11 +96,13 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
         depth_rel = f"depth/{i:04d}.npz"
         pc_rel = f"pointcloud/{i:04d}.ply"
 
-        if rgba is not None:
-            Image.fromarray(rgba[..., :3]).save(out_root / rgb_rel)
-        np.savez_compressed(out_root / depth_rel, depth=depth.astype(np.float32))
-        pts = depth_to_pointcloud(depth, intr, extrinsic)
-        write_ply_ascii(out_root / pc_rel, pts)
+        if rgb is not None:
+            Image.fromarray(rgb).save(out_root / rgb_rel)
+        if depth is not None:
+            np.savez_compressed(out_root / depth_rel, depth=depth.astype(np.float32))
+        if depth is not None:
+            pts = depth_to_pointcloud(depth, intr, extrinsic)
+            write_ply_ascii(out_root / pc_rel, pts)
 
         frames_meta.append(MetaFrame(
             frame=i,
