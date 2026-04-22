@@ -59,8 +59,10 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
     camera.set_horizontal_aperture(2.0 * np.tan(np.deg2rad(args.fov_deg) / 2.0))
 
     for _ in range(30):
-        world.step(render=True)
+        world.step(render=False)
 
+    # One render step to populate the camera frame buffers.
+    world.step(render=True)
     frame = camera.get_current_frame()
     rgb_shape = frame["rgba"].shape if "rgba" in frame else None
     depth_shape = frame.get("distance_to_image_plane", np.zeros(0)).shape
