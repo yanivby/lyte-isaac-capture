@@ -60,6 +60,7 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
     world.reset()
     camera.initialize()
     camera.add_distance_to_image_plane_to_frame()
+    camera.add_distance_to_camera_to_frame()  # also enables rgba output
     camera.set_horizontal_aperture(2.0 * np.tan(np.deg2rad(args.fov_deg) / 2.0))
 
     # Physics warmup (no render — fast).
@@ -73,7 +74,9 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
     for i in range(args.frames):
         world.step(render=True)
         frame = camera.get_current_frame()
-        rgba = frame["rgba"]
+        if i == 0:
+            Path("/tmp/frame_keys.txt").write_text(str(list(frame.keys())) + "\n")
+        rgba = frame.get("rgba")
         depth = frame["distance_to_image_plane"]
         pos, quat_wxyz = camera.get_world_pose()
 
@@ -93,7 +96,8 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
         depth_rel = f"depth/{i:04d}.npz"
         pc_rel = f"pointcloud/{i:04d}.ply"
 
-        Image.fromarray(rgba[..., :3]).save(out_root / rgb_rel)
+        if rgba is not None:
+            Image.fromarray(rgba[..., :3]).save(out_root / rgb_rel)
         np.savez_compressed(out_root / depth_rel, depth=depth.astype(np.float32))
         pts = depth_to_pointcloud(depth, intr, extrinsic)
         write_ply_ascii(out_root / pc_rel, pts)
