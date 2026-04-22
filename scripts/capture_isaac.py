@@ -67,6 +67,10 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
     for _ in range(60):
         world.step(render=False)
 
+    # Render warmup — prime annotator pipelines so frame data is non-None.
+    for _ in range(5):
+        world.step(render=True)
+
     out_root = Path(args.out)
     frames_meta: list[MetaFrame] = []
     dt = 1.0 / args.fps
