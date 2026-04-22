@@ -44,6 +44,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     prepare_output(args.out)
     try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
         from capture_isaac import run_capture  # noqa: E402  (imports isaacsim)
     except ModuleNotFoundError as exc:
         print(f"[capture] ERROR: {exc}. Run inside $ISAACSIM_PYTHON.", file=sys.stderr)
