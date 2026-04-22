@@ -4,7 +4,6 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from pathlib import Path
 import json
-from typing import List
 
 
 @dataclass
@@ -18,7 +17,7 @@ class MetaFrame:
     pointcloud_path: str
 
 
-def write_meta_json(path: Path, frames: List[MetaFrame], run_name: str, robot: str, mount: str) -> None:
+def write_meta_json(path: Path, frames: list[MetaFrame], run_name: str, robot: str, mount: str) -> None:
     path = Path(path)
     payload = {
         "run_name": run_name,
@@ -26,9 +25,9 @@ def write_meta_json(path: Path, frames: List[MetaFrame], run_name: str, robot: s
         "mount": mount,
         "frames": [asdict(f) for f in frames],
     }
-    path.write_text(json.dumps(payload, indent=2))
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def read_meta_json(path: Path) -> List[MetaFrame]:
-    data = json.loads(Path(path).read_text())
+def read_meta_json(path: Path) -> list[MetaFrame]:
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
     return [MetaFrame(**f) for f in data["frames"]]
