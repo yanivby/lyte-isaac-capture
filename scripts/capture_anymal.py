@@ -38,13 +38,16 @@ def prepare_output(out_root: Path) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    prepare_output(args.out)
     print(f"[capture] mount={args.mount} offset={MOUNTS[args.mount]} frames={args.frames} out={args.out}")
     if args.dry_run:
         print("[capture] dry-run OK")
         return 0
-    # Isaac path follows in later tasks.
-    from capture_isaac import run_capture  # noqa: E402  (imports isaacsim)
+    prepare_output(args.out)
+    try:
+        from capture_isaac import run_capture  # noqa: E402  (imports isaacsim)
+    except ModuleNotFoundError as exc:
+        print(f"[capture] ERROR: {exc}. Run inside $ISAACSIM_PYTHON.", file=sys.stderr)
+        return 1
     return run_capture(args, MOUNTS[args.mount])
 
 
