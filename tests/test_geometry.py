@@ -1,6 +1,6 @@
 # tests/test_geometry.py
 import numpy as np
-from capture.geometry import depth_to_pointcloud
+from capture.geometry import depth_to_pointcloud, write_ply_ascii
 
 
 def test_depth_to_pointcloud_identity_extrinsic_center_pixel():
@@ -54,3 +54,15 @@ def test_depth_to_pointcloud_filters_nan_and_zero():
     points = depth_to_pointcloud(depth, intrinsics, extrinsic)
 
     assert points.shape[0] == 1  # only the 1.5-depth pixel survives
+
+
+def test_write_ply_ascii_roundtrip(tmp_path):
+    pts = np.array([[0.0, 0.0, 0.0], [1.5, -2.0, 3.25]], dtype=np.float32)
+    out = tmp_path / "t.ply"
+    write_ply_ascii(out, pts)
+
+    text = out.read_text()
+    assert text.startswith("ply\nformat ascii 1.0\n")
+    assert "element vertex 2\n" in text
+    assert "0 0 0" in text
+    assert "1.5 -2 3.25" in text

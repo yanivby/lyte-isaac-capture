@@ -1,5 +1,5 @@
 # src/capture/geometry.py
-"""Pure numpy geometry — depth maps to world-frame point clouds."""
+"""Pure numpy geometry — depth maps to world-frame point clouds, PLY I/O."""
 from __future__ import annotations
 from pathlib import Path
 import numpy as np
@@ -36,3 +36,20 @@ def depth_to_pointcloud(
 
     pts_world_h = pts_cam_h @ extrinsic.T  # (N, 4)
     return pts_world_h[:, :3].astype(np.float32)
+
+
+def write_ply_ascii(path: Path, points: np.ndarray) -> None:
+    """Write (N, 3) float points as an ASCII PLY file."""
+    path = Path(path)
+    n = points.shape[0]
+    header = (
+        "ply\n"
+        "format ascii 1.0\n"
+        f"element vertex {n}\n"
+        "property float x\n"
+        "property float y\n"
+        "property float z\n"
+        "end_header\n"
+    )
+    lines = [f"{p[0]:g} {p[1]:g} {p[2]:g}" for p in points]
+    path.write_text(header + "\n".join(lines) + ("\n" if n else ""))
