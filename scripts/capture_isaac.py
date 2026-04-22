@@ -75,7 +75,8 @@ def run_capture(args: argparse.Namespace, mount_offset: tuple[float, float, floa
         world.step(render=True)
         frame = camera.get_current_frame()
         if i == 0:
-            Path("/tmp/frame_keys.txt").write_text(str(list(frame.keys())) + "\n")
+            debug = {k: (type(v).__name__, getattr(v, 'shape', None)) for k, v in frame.items()}
+            Path("/tmp/frame_keys.txt").write_text(str(debug) + "\n")
         rgb = frame.get("rgb")
         depth = frame.get("distance_to_image_plane")
         pos, quat_wxyz = camera.get_world_pose()
